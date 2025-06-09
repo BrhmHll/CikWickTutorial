@@ -2,9 +2,13 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR.Haptics;
-
+// Video 06:25:20
 public class PlayerController : MonoBehaviour
 {
+
+    public event Action OnPlayerJumped;
+    public event Action OnPlayerJumpEnded;
+
     [Header("References")]
     [SerializeField] private Transform _orientationTransform;
 
@@ -130,7 +134,7 @@ public class PlayerController : MonoBehaviour
             _ => _playerRigidbody.linearDamping,
         };
     }
-    
+
     private void LimitPlayerSpeed()
     {
         Vector3 flatVelocity = new Vector3(_playerRigidbody.linearVelocity.x, 0f, _playerRigidbody.linearVelocity.z);
@@ -143,6 +147,8 @@ public class PlayerController : MonoBehaviour
 
     private void SetPlayerJumping()
     {
+        OnPlayerJumped?.Invoke();
+
         _playerRigidbody.linearVelocity = new Vector3(_playerRigidbody.linearVelocity.x, 0f, _playerRigidbody.linearVelocity.z);
         _playerRigidbody.AddForce(transform.up * _jumpForce, ForceMode.Impulse);
     }
@@ -150,6 +156,7 @@ public class PlayerController : MonoBehaviour
     private void ResetJumping()
     {
         _canJump = true;
+        OnPlayerJumpEnded.Invoke();
     }
 
     private bool IsGrounded()
