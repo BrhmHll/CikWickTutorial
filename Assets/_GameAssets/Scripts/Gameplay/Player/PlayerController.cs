@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.XR.Haptics;
-// Video 06:25:20
+// Video 06:49:40
 public class PlayerController : MonoBehaviour
 {
 
@@ -37,18 +37,24 @@ public class PlayerController : MonoBehaviour
     private StateController _stateController;
     private Rigidbody _playerRigidbody;
 
+    private float _startingMovementSpeed, _startingJumpForce;
+
     private float _horizontalInput, _verticalInput;
     private Vector3 _movementDirection;
     private bool _isSliding;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
         _playerRigidbody = GetComponent<Rigidbody>();
+        _stateController = GetComponent<StateController>();
+
         _playerRigidbody.freezeRotation = true;
 
-        _stateController = GetComponent<StateController>();
+        _startingMovementSpeed = _movementSpeed;
+        _startingJumpForce = _jumpForce;
+
     }
 
     // Update is called once per frame
@@ -159,6 +165,8 @@ public class PlayerController : MonoBehaviour
         OnPlayerJumpEnded.Invoke();
     }
 
+    #region Helper Functions
+
     private bool IsGrounded()
     {
         return Physics.Raycast(transform.position, Vector3.down, _playerHeight * 0.5f + 0.1f, _groundLayer);
@@ -173,4 +181,28 @@ public class PlayerController : MonoBehaviour
     {
         return _isSliding;
     }
+
+    public void SetMovementSpeed(float speed, float duration)
+    {
+        _movementSpeed += speed;
+        Invoke(nameof(ResetMovementSpeed), duration);
+    }
+
+    private void ResetMovementSpeed()
+    {
+        _movementSpeed = _startingMovementSpeed;
+    }
+
+     public void SetJumpForce(float force, float duration)
+    {
+        _jumpForce += force;
+        Invoke(nameof(ResetJumpForce), duration);
+    }
+
+    private void ResetJumpForce()
+    {
+        _jumpForce = _startingJumpForce;
+    }
+
+    #endregion Helper Functions
 }
